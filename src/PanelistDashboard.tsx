@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 // --- INITIAL DATA COMBINED (AP + MEOW) ---
 // AP Logic: Aug 25 Peak (~110k) -> Sep 25 Drop 25% -> Recover linearly to Jan 26 (~85k).
-// Meow Logic: Based on May 25 Real Sample (~10.8k), growing organically from Mar 25 (~8k) to Jan 26 (~15k).
+// Meow Logic: Based on May 25 Real Sample (~10.8k), growing organically with ~5% fluctuation.
 const INITIAL_DATA_CSV = `Panel,Topic,Segment,"Mar 25","Apr 25","May 25","Jun 25","Jul 25","Aug 25","Sep 25","Oct 25","Nov 25","Dec 25","Jan 26"
 AP,gender,Female,59546,59571,61989,63197,65198,69252,46850,47466,48083,48699,49316
 AP,gender,Male,41990,39043,39649,39757,39695,40561,30420,31735,33050,34365,35683
@@ -57,38 +57,38 @@ AP,household_income,"150,000 THB or higher",1357,1263,1310,1325,1321,1392,1044,1
 AP,household_income,Don't know,2524,2723,2920,2952,3028,3146,2420,2590,2760,2930,3100
 AP,household_income,Refused,3860,3901,4163,4212,4365,4538,3491,3661,3831,4001,4171
 AP,household_income,No Answer,19062,18027,17541,17820,17144,17522,13481,13651,13821,13991,14161
-Meow,gender,Female,4600,5200,6251,6800,7400,8000,8600,9200,9800,10400,11000
-Meow,gender,Male,3400,3800,4620,5000,5400,5800,6200,6600,7000,7400,7800
-Meow,age,18-19,600,700,1087,1200,1300,1400,1500,1600,1700,1800,1900
-Meow,age,20-29,3000,3500,4348,4700,5100,5500,5900,6300,6700,7100,7500
-Meow,age,30-39,2000,2400,2717,3000,3300,3600,3900,4200,4500,4800,5100
-Meow,age,40-49,1200,1400,1630,1800,2000,2200,2400,2600,2800,3000,3200
-Meow,age,50-59,500,550,578,650,700,750,800,850,900,950,1000
-Meow,age,60-69,200,220,261,280,300,320,340,360,380,400,420
-Meow,age,70-99,100,120,189,200,220,240,260,280,300,320,340
-Meow,region,Bangkok Metropolitan,3500,4200,4500,5000,5500,6000,6500,7000,7500,8000,8500
-Meow,region,Sub-Central,1000,1200,1600,1800,2000,2200,2400,2600,2800,3000,3200
-Meow,region,Northern,800,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800
-Meow,region,Northeastern,1500,1800,2000,2300,2600,2900,3200,3500,3800,4100,4400
-Meow,region,Eastern,600,700,900,1100,1300,1500,1700,1900,2100,2300,2500
-Meow,region,Western,300,350,450,550,650,750,850,950,1050,1150,1250
-Meow,region,Southern,500,600,900,1100,1300,1500,1700,1900,2100,2300,2500
-Meow,cars,0,,2500,2800,3200,3600,4000,4400,4800,5200,5600,6000
-Meow,cars,1,,3500,4200,4600,5000,5400,5800,6200,6600,7000,7400
-Meow,cars,2,,1500,1800,2100,2400,2700,3000,3300,3600,3900,4200
-Meow,cars,3 or more,,600,800,971,1100,1300,1500,1700,1900,2100,2300
-Meow,car_owner,Yourself,,3500,4000,4500,5000,5500,6000,6500,7000,7500,8000
-Meow,car_owner,Spouse,,800,900,1000,1200,1400,1600,1800,2000,2200,2400
-Meow,car_owner,Parent,,3000,3500,4000,4600,5200,5800,6400,7000,7600,8200
-Meow,household_income,"< 5k",1000,1100,1200,1400,1600,1800,2000,2200,2400,2600,2800
-Meow,household_income,"5k-10k",800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600
-Meow,household_income,"10k-20k",1500,1700,2000,2400,2800,3200,3600,4000,4400,4800,5200
-Meow,household_income,"20k-30k",1200,1400,1500,1800,2100,2400,2700,3000,3300,3600,3900
-Meow,household_income,"30k-50k",1800,2000,2300,2700,3100,3500,3900,4300,4700,5100,5500
-Meow,household_income,"50k-75k",800,900,1100,1300,1500,1700,1900,2100,2300,2500,2700
-Meow,household_income,"75k-100k",300,350,400,500,600,700,800,900,1000,1100,1200
-Meow,household_income,"100k-150k",150,180,200,250,300,350,400,450,500,550,600
-Meow,household_income,"> 150k",100,120,150,200,250,300,350,400,450,500,550
+Meow,gender,Female,4850,5180,6251,6590,6950,7420,7710,8120,8450,8910,9280
+Meow,gender,Male,3580,3830,4620,4860,5140,5480,5690,6010,6240,6580,6860
+Meow,age,18-19,780,850,1087,1150,1210,1290,1340,1410,1470,1550,1610
+Meow,age,20-29,3650,3900,4348,4580,4830,5160,5360,5650,5870,6190,6450
+Meow,age,30-39,2280,2430,2717,2860,3020,3220,3350,3530,3670,3870,4030
+Meow,age,40-49,1360,1460,1630,1720,1810,1930,2010,2120,2200,2320,2420
+Meow,age,50-59,480,520,578,610,640,680,710,750,780,820,850
+Meow,age,60-69,220,235,261,275,290,310,322,340,353,372,388
+Meow,age,70-99,160,170,189,200,210,225,234,247,256,270,282
+Meow,region,Bangkok Metropolitan,6550,7000,7794,8210,8660,9240,9610,10120,10530,11100,11570
+Meow,region,Sub-Central,500,530,593,616,647,680,714,750,787,826,867
+Meow,region,Northern,250,270,304,320,340,360,375,395,410,432,450
+Meow,region,Northeastern,1230,1320,1467,1540,1630,1740,1810,1910,1980,2090,2180
+Meow,region,Eastern,350,380,423,445,470,500,520,550,570,600,625
+Meow,region,Western,190,205,230,242,255,272,283,298,310,327,341
+Meow,region,Southern,410,440,489,515,545,580,605,637,662,698,728
+Meow,cars,0,,2350,2614,2750,2900,3100,3220,3390,3530,3720,3880
+Meow,cars,1,,4100,4575,4820,5080,5420,5640,5940,6180,6510,6780
+Meow,cars,2,,1680,1873,1970,2080,2220,2310,2430,2530,2670,2780
+Meow,cars,3 or more,,880,980,1030,1090,1160,1210,1270,1320,1390,1450
+Meow,car_owner,Yourself,,3900,4348,4522,4793,5032,5283,5547,5824,6115,6420
+Meow,car_owner,Spouse,,780,870,915,965,1030,1070,1130,1175,1240,1290
+Meow,car_owner,Parent,,3150,3520,3710,3910,4170,4340,4570,4750,5010,5220
+Meow,household_income,"< 5k",1440,1540,1712,1800,1900,2030,2110,2220,2310,2440,2540
+Meow,household_income,"5k-10k",1030,1100,1223,1290,1360,1450,1510,1590,1650,1740,1810
+Meow,household_income,"10k-20k",1680,1800,2001,2110,2220,2370,2460,2590,2700,2840,2960
+Meow,household_income,"20k-30k",940,1010,1120,1180,1240,1330,1380,1450,1510,1590,1660
+Meow,household_income,"30k-50k",1020,1090,1217,1280,1350,1440,1500,1580,1640,1730,1800
+Meow,household_income,"50k-75k",500,535,594,625,660,705,735,775,805,850,885
+Meow,household_income,"75k-100k",160,170,191,200,212,225,235,247,257,270,282
+Meow,household_income,"100k-150k",135,145,158,166,175,187,194,205,213,224,233
+Meow,household_income,"> 150k",120,130,142,150,158,168,175,184,192,202,210
 `;
 
 // --- ICONS MAPPING ---
@@ -96,9 +96,9 @@ const getIconForTopic = (topic: string) => {
   switch (topic.toLowerCase()) {
     case 'overview': return <LayoutDashboard className="w-5 h-5 text-slate-700" />;
     case 'gender': return <Users className="w-5 h-5 text-blue-500" />;
-    case 'age': return <Activity className="w-5 h-5 text-green-500" />;
-    case 'region': return <MapPin className="w-5 h-5 text-red-500" />;
-    case 'car information': return <Car className="w-5 h-5 text-purple-500" />;
+    case 'age': return <Activity className="w-5 h-5 text-blue-500" />;
+    case 'region': return <MapPin className="w-5 h-5 text-blue-500" />;
+    case 'car information': // Combined
     case 'cars': 
     case 'car_owner': return <Car className="w-5 h-5 text-purple-500" />;
     case 'household_income':
@@ -624,7 +624,7 @@ const Dashboard = () => {
     })).sort((a,b) => b.value - a.value).slice(0, 5);
   }, [data, monthA, selectedPanel]);
 
-  // OLD BLUE THEME COLORS
+  // BLUE THEME COLORS
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'];
   const PIE_COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'];
   const SES_COLORS = ['#1e3a8a', '#1e40af', '#3b82f6', '#60a5fa', '#93c5fd']; 
@@ -968,7 +968,7 @@ const Dashboard = () => {
                   <button key={p} onClick={() => setSelectedPanel(p)} className={`px-4 py-1.5 text-sm rounded-md font-medium transition-all ${selectedPanel === p ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                     <div className="flex items-center gap-2">
                       {p === 'AP' ? <Users className="w-4 h-4" /> : null}
-                      {p === 'Meow' ? <Star className="w-4 h-4" /> : null}
+                      {p === 'Meow' ? <Cat className="w-4 h-4" /> : null}
                       {p}
                     </div>
                   </button>
@@ -1044,7 +1044,7 @@ const Dashboard = () => {
       {/* Focus Category Summary */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <Globe className="w-5 h-5 text-indigo-600" />
+          <Globe className="w-5 h-5 text-blue-600" />
           <h2 className="text-lg font-bold text-slate-800">Focus Categories Summary</h2>
           <span className="text-xs text-slate-500 bg-white px-2 py-1 rounded border border-slate-200 flex items-center gap-1">
             <Info className="w-3 h-3" />
@@ -1221,7 +1221,7 @@ const Dashboard = () => {
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" width={50} tick={{fontSize: 11}} />
                   <Tooltip cursor={{fill: '#f8fafc'}} />
-                  <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20}>
+                  <Bar dataKey="value" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={20}>
                     {overviewAgeData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
