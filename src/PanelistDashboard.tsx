@@ -4,10 +4,10 @@ import {
   LineChart, Line, AreaChart, Area, Cell
 } from 'recharts';
 import { 
-  Users, Briefcase, Car, MapPin, Wallet, Upload, Download,
-  ArrowUpRight, ArrowDownRight, Activity, Filter, FileText,
-  Calendar, Layers, Database, UserCheck, Trees, Globe, Info, LayoutDashboard, Building2,
-  Baby, GraduationCap, BriefcaseBusiness, User, Star, RefreshCw, AlertCircle
+  Users, Briefcase, Car, MapPin, Wallet,
+  ArrowUpRight, ArrowDownRight, Activity, FileText,
+  Layers, Database, UserCheck, Trees, Globe, LayoutDashboard, Building2,
+  RefreshCw, AlertCircle
 } from 'lucide-react';
 import _ from 'lodash';
 
@@ -20,10 +20,17 @@ const FALLBACK_DATA_CSV = `Panel,Topic,Segment,"Mar 25","Apr 25","May 25","Jun 2
 AP,gender,Female,59546,59571,61989,63197,65198,69252,46850,47466,48083,48699,49316
 AP,gender,Male,41990,39043,39649,39757,39695,40561,30420,31735,33050,34365,35683`;
 
-// --- HELPER FUNCTIONS ---
-const formatNumber = (num) => new Intl.NumberFormat('en-US').format(num);
+interface DataRow {
+  Panel: string;
+  Topic: string;
+  Segment: string;
+  [key: string]: string;
+}
 
-const formatIncomeLabel = (label) => {
+// --- HELPER FUNCTIONS ---
+const formatNumber = (num: number) => new Intl.NumberFormat('en-US').format(num);
+
+const formatIncomeLabel = (label: string) => {
   if (!label) return "";
   const l = label.trim();
   if (l === "Less than 5,000 THB") return "< 5k";
@@ -38,9 +45,9 @@ const formatIncomeLabel = (label) => {
   return label;
 };
 
-const parseCSV = (csvText) => {
+const parseCSV = (csvText: string): DataRow[] => {
   const lines = csvText.trim().split('\n');
-  const splitLine = (line) => {
+  const splitLine = (line: string) => {
     const result = [];
     let current = '';
     let inQuote = false;
@@ -58,13 +65,13 @@ const parseCSV = (csvText) => {
   const headers = splitLine(lines[0]);
   return lines.slice(1).map(line => {
     const values = splitLine(line);
-    const row = {};
+    const row: any = {};
     headers.forEach((h, i) => row[h] = values[i] || '');
-    return row;
+    return row as DataRow;
   });
 };
 
-const getIconForTopic = (topic) => {
+const getIconForTopic = (topic: string) => {
   switch (topic.toLowerCase()) {
     case 'overview': return <LayoutDashboard className="w-5 h-5 text-slate-700" />;
     case 'gender': return <Users className="w-5 h-5 text-blue-500" />;
@@ -82,7 +89,16 @@ const getIconForTopic = (topic) => {
 };
 
 // --- SUB-COMPONENTS ---
-const SummaryCard = ({ title, value, compareValue, compareLabel, icon: Icon, colorClass }) => {
+interface SummaryCardProps {
+  title: string;
+  value: number;
+  compareValue: number;
+  compareLabel: string;
+  icon: React.ElementType;
+  colorClass: string;
+}
+
+const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, compareValue, compareLabel, icon: Icon, colorClass }) => {
   const diff = value - compareValue;
   const pctChange = compareValue !== 0 ? ((diff / compareValue) * 100).toFixed(1) : '0.0';
   const isPositive = diff >= 0;
@@ -110,7 +126,15 @@ const SummaryCard = ({ title, value, compareValue, compareLabel, icon: Icon, col
   );
 };
 
-const TableData = ({ data, monthA, monthB, viewMode, getPreviousMonth }) => (
+interface TableDataProps {
+  data: any[];
+  monthA: string;
+  monthB: string;
+  viewMode: string;
+  getPreviousMonth: (m: string) => string;
+}
+
+const TableData: React.FC<TableDataProps> = ({ data, monthA, monthB, viewMode, getPreviousMonth }) => (
   <table className="w-full text-sm">
     <thead className="sticky top-0 bg-white z-10 shadow-sm">
       <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
@@ -156,20 +180,45 @@ const TableData = ({ data, monthA, monthB, viewMode, getPreviousMonth }) => (
   </table>
 );
 
+interface CarSubSectionProps {
+  title: string;
+  data: any[];
+  trendData: any[];
+  aggData: any[];
+  monthA: string;
+  monthB: string;
+  viewMode: string;
+  getPreviousMonth: (m: string) => string;
+  COLORS: string[];
+}
+
+const CarSubSection: React.FC<CarSubSectionProps> = ({ title, data, trendData, aggData, monthA, monthB, viewMode, getPreviousMonth, COLORS }) => (
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="lg:col-span-1 bg-white p-5 rounded-xl border border-slate-100 flex flex-col">
+      <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">{getIconForTopic(title)}<span>{title} Data</span></h2>
+      <div className="overflow-auto flex-grow h-[250px] mt-4"><TableData data={data} monthA={monthA} monthB={monthB} viewMode={viewMode} getPreviousMonth={getPreviousMonth}/></div>
+    </div>
+    <div className="lg:col-span-2 space-y-6">
+      <div className="bg-white p-5 rounded-xl border border-slate-100"><h3 className="font-bold mb-4">{title} Distribution</h3><div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" tick={{fontSize: 11}} /><YAxis tick={{fontSize: 11}} /><Tooltip /><Legend />{viewMode === 'compare' ? (<><Bar dataKey="valA" name={monthA} fill="#cbd5e1" radius={[4, 4, 0, 0]} /><Bar dataKey="valB" name={monthB} fill="#3b82f6" radius={[4, 4, 0, 0]} /></>) : (<Bar dataKey="valB" name={monthA} fill="#3b82f6" radius={[4, 4, 0, 0]} />)}</BarChart></ResponsiveContainer></div></div>
+      <div className="bg-white p-5 rounded-xl border border-slate-100"><h3 className="font-bold mb-4">{title} - Trend</h3><div className="h-64"><ResponsiveContainer width="100%" height="100%"><LineChart data={trendData}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" tick={{fontSize: 11}} /><YAxis tick={{fontSize: 11}} /><Tooltip /><Legend />{aggData.map((s, i) => <Line key={s.Segment} type="monotone" dataKey={s.Segment} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={{r: 3}} />)}</LineChart></ResponsiveContainer></div></div>
+    </div>
+  </div>
+);
+
 // --- MAIN APP COMPONENT ---
 export default function App() {
-  const [data, setData] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [panels, setPanels] = useState([]);
-  const [months, setMonths] = useState([]);
+  const [data, setData] = useState<DataRow[]>([]);
+  const [topics, setTopics] = useState<string[]>([]);
+  const [panels, setPanels] = useState<string[]>([]);
+  const [months, setMonths] = useState<string[]>([]);
   const [selectedTopic, setSelectedTopic] = useState('Overview');
   const [selectedPanel, setSelectedPanel] = useState('All');
   const [viewMode, setViewMode] = useState('single');
   const [monthA, setMonthA] = useState(''); 
   const [monthB, setMonthB] = useState(''); 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -190,14 +239,14 @@ export default function App() {
     }
   };
 
-  const processData = (csvText) => {
+  const processData = (csvText: string) => {
     const rawData = parseCSV(csvText);
     setData(rawData);
     
     const rawTopics = Array.from(new Set(rawData.map(r => r.Topic)));
     const uiTopics = ['Overview'];
     rawTopics.forEach(t => {
-      if (t === 'cars' || t === 'car_owner') {
+      if (t === 'cars' || t === 'car_owner') { 
         if (!uiTopics.includes('Car Information')) uiTopics.push('Car Information');
       } else uiTopics.push(t);
     });
@@ -219,14 +268,14 @@ export default function App() {
     fetchData();
   }, []);
 
-  const getMetricCount = (month, filterFn) => {
+  const getMetricCount = (month: string, filterFn: (r: DataRow) => boolean) => {
     if (!month) return 0;
     let filtered = data;
     if (selectedPanel !== 'All') filtered = filtered.filter(r => r.Panel === selectedPanel);
-    return filtered.filter(filterFn).reduce((sum, r) => sum + (parseInt(r[month]) || 0), 0);
+    return filtered.filter(filterFn).reduce((sum, r) => sum + (parseInt(r[month] || '0') || 0), 0);
   };
 
-  const getPreviousMonth = (cur) => {
+  const getPreviousMonth = (cur: string) => {
     const idx = months.indexOf(cur);
     return idx > 0 ? months[idx - 1] : cur;
   };
@@ -235,7 +284,7 @@ export default function App() {
   const focusMetrics = useMemo(() => {
     const target = viewMode === 'compare' ? monthB : monthA;
     const compare = viewMode === 'compare' ? monthA : getPreviousMonth(monthA);
-    const calc = (m) => ({
+    const calc = (m: string) => ({
       overall: getMetricCount(m, r => r.Topic === 'gender'),
       silver: getMetricCount(m, r => r.Topic === 'age' && ['50-59', '60-69', '70-99'].includes(r.Segment)),
       auto: getMetricCount(m, r => r.Topic === 'car_owner' && r.Segment === 'Yourself'),
@@ -255,7 +304,7 @@ export default function App() {
     
     const grouped = _.groupBy(filtered, (row) => selectedTopic === 'Car Information' ? `${row.Topic} - ${row.Segment}` : row.Segment);
     
-    let result = Object.keys(grouped).map(key => {
+    let result: any[] = Object.keys(grouped).map(key => {
       const rows = grouped[key];
       let segName = key;
       let origTopic = selectedTopic;
@@ -264,8 +313,8 @@ export default function App() {
         segName = t === 'cars' ? `Qty: ${s}` : `Owner: ${s}`;
         origTopic = t;
       }
-      const merged = { Topic: selectedTopic, Segment: segName, OriginalTopic: origTopic };
-      months.forEach(m => merged[m] = rows.reduce((s, r) => s + (parseInt(r[m]) || 0), 0));
+      const merged: any = { Topic: selectedTopic, Segment: segName, OriginalTopic: origTopic };
+      months.forEach(m => merged[m] = rows.reduce((s, r) => s + (parseInt(r[m] || '0') || 0), 0));
       return merged;
     });
 
@@ -282,8 +331,8 @@ export default function App() {
     const targetA = viewMode === 'compare' ? monthA : getPreviousMonth(monthA);
     const targetB = viewMode === 'compare' ? monthB : monthA;
     return aggregatedData.map(row => {
-      const valA = parseInt(row[targetA]) || 0;
-      const valB = parseInt(row[targetB]) || 0;
+      const valA = parseInt(row[targetA] as string) || 0;
+      const valB = parseInt(row[targetB] as string) || 0;
       return { name: row.Segment, originalTopic: row.OriginalTopic, valA, valB, diff: valB - valA, pctChange: valA !== 0 ? ((valB - valA) / valA * 100).toFixed(1) : 'N/A' };
     });
   }, [aggregatedData, monthA, monthB, viewMode, months]);
@@ -297,8 +346,9 @@ export default function App() {
     const genMap = { 'Gen Z (18-29)': ['18-19', '20-29'], 'Gen Y (30-39)': ['30-39'], 'Gen X (40-49)': ['40-49'], 'Silver Gen (50+)': ['50-59', '60-69', '70-99'], 'Baby Boomer (60+)': ['60-69', '70-99'] };
     const genCounts = { 'Gen Z (18-29)': { vA: 0, vB: 0 }, 'Gen Y (30-39)': { vA: 0, vB: 0 }, 'Gen X (40-49)': { vA: 0, vB: 0 }, 'Silver Gen (50+)': { vA: 0, vB: 0 }, 'Baby Boomer (60+)': { vA: 0, vB: 0 } };
     filtered.forEach(r => {
-      const vA = parseInt(r[targetA]) || 0; const vB = parseInt(r[targetB]) || 0;
-      Object.entries(genMap).forEach(([gen, segs]) => { if (segs.includes(r.Segment)) { genCounts[gen].vA += vA; genCounts[gen].vB += vB; } });
+      const vA = parseInt(r[targetA] || '0') || 0;
+      const vB = parseInt(r[targetB] || '0') || 0;
+      Object.entries(genMap).forEach(([gen, segs]) => { if (segs.includes(r.Segment)) { genCounts[gen as keyof typeof genCounts].vA += vA; genCounts[gen as keyof typeof genCounts].vB += vB; } });
     });
     return Object.entries(genCounts).map(([name, c]) => ({ name, valA: c.vA, valB: c.vB, diff: c.vB - c.vA, pctChange: c.vA !== 0 ? ((c.vB - c.vA) / c.vA * 100).toFixed(1) : 'N/A' }));
   }, [data, monthA, monthB, viewMode, selectedPanel, months]);
@@ -307,19 +357,19 @@ export default function App() {
   const overviewTotalTrend = useMemo(() => {
     let filtered = data.filter(r => r.Topic === 'gender');
     if (selectedPanel !== 'All') filtered = filtered.filter(r => r.Panel === selectedPanel);
-    return months.map(m => ({ name: m, Total: filtered.reduce((s, r) => s + (parseInt(r[m]) || 0), 0) }));
+    return months.map(m => ({ name: m, Total: filtered.reduce((s, r) => s + (parseInt(r[m] || '0') || 0), 0) }));
   }, [data, months, selectedPanel]);
 
   const overviewRegionData = useMemo(() => {
     if (!monthA) return [];
     let filtered = data.filter(r => r.Topic === 'region' && (selectedPanel === 'All' || r.Panel === selectedPanel));
-    return Object.entries(_.groupBy(filtered, 'Segment')).map(([seg, rows]) => ({ name: seg, value: rows.reduce((s, r) => s + (parseInt(r[monthA]) || 0), 0) })).sort((a,b) => b.value - a.value);
+    return Object.entries(_.groupBy(filtered, 'Segment')).map(([seg, rows]) => ({ name: seg, value: rows.reduce((s, r) => s + (parseInt(r[monthA] || '0') || 0), 0) })).sort((a,b) => b.value - a.value);
   }, [data, monthA, selectedPanel]);
 
   const overviewAgeData = useMemo(() => {
     if (!monthA) return [];
     let filtered = data.filter(r => r.Topic === 'age' && (selectedPanel === 'All' || r.Panel === selectedPanel));
-    return Object.entries(_.groupBy(filtered, 'Segment')).map(([seg, rows]) => ({ name: seg, value: rows.reduce((s, r) => s + (parseInt(r[monthA]) || 0), 0) }));
+    return Object.entries(_.groupBy(filtered, 'Segment')).map(([seg, rows]) => ({ name: seg, value: rows.reduce((s, r) => s + (parseInt(r[monthA] || '0') || 0), 0) }));
   }, [data, monthA, selectedPanel]);
 
   const overviewSESData = useMemo(() => {
@@ -329,14 +379,14 @@ export default function App() {
     const sesCounts = { 'SES A (>75k)': 0, 'SES B (30k-75k)': 0, 'SES C (10k-30k)': 0, 'SES D (5k-10k)': 0, 'SES E (<5k)': 0 };
     filtered.forEach(r => {
       const f = formatIncomeLabel(r.Segment);
-      for (const [ses, segs] of Object.entries(sesRules)) { if (segs.includes(r.Segment) || segs.includes(f)) { sesCounts[ses] += (parseInt(r[monthA]) || 0); break; } }
+      for (const [ses, segs] of Object.entries(sesRules)) { if (segs.includes(r.Segment) || segs.includes(f)) { sesCounts[ses as keyof typeof sesCounts] += (parseInt(r[monthA] || '0') || 0); break; } }
     });
     return Object.entries(sesCounts).map(([name, value]) => ({ name, value }));
   }, [data, monthA, selectedPanel]);
 
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'];
   const SES_COLORS = ['#1e3a8a', '#1e40af', '#3b82f6', '#60a5fa', '#93c5fd'];
-  const getTrendData = (agg) => months.map(m => { const obj = { name: m }; agg.forEach(r => obj[r.Segment] = parseInt(r[m]) || 0); return obj; });
+  const getTrendData = (agg: any[]) => months.map(m => { const obj: any = { name: m }; agg.forEach(r => obj[r.Segment] = parseInt(r[m] || '0') || 0); return obj; });
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen font-sans text-slate-800">
@@ -459,7 +509,7 @@ export default function App() {
                   {genChartData.map((gen, idx) => {
                     const isPos = gen.diff >= 0;
                     return (
-                      <tr key={idx} className="hover:bg-slate-50"><td className="py-3 px-4 font-medium text-slate-700">{gen.name}</td><td className="py-3 px-4 text-right font-mono font-semibold text-slate-800">{formatNumber(gen.valB)}</td>{viewMode === 'compare' && <td className="py-3 px-4 text-right font-mono text-slate-50">{formatNumber(gen.valA)}</td>}<td className={`py-3 px-4 text-right font-medium ${isPos ? 'text-emerald-600' : 'text-rose-500'}`}>{isPos ? '+' : ''}{formatNumber(gen.diff)}</td><td className={`py-3 px-4 text-right font-medium ${isPos ? 'text-emerald-600' : 'text-rose-500'}`}>{gen.pctChange}%</td></tr>
+                      <tr key={gen.name} className="hover:bg-slate-50"><td className="py-3 px-4 font-medium text-slate-700">{gen.name}</td><td className="py-3 px-4 text-right font-mono font-semibold text-slate-800">{formatNumber(gen.valB)}</td>{viewMode === 'compare' && <td className="py-3 px-4 text-right font-mono text-slate-500">{formatNumber(gen.valA)}</td>}<td className={`py-3 px-4 text-right font-medium ${isPos ? 'text-emerald-600' : 'text-rose-500'}`}>{isPos ? '+' : ''}{formatNumber(gen.diff)}</td><td className={`py-3 px-4 text-right font-medium ${isPos ? 'text-emerald-600' : 'text-rose-500'}`}>{gen.pctChange}%</td></tr>
                     );
                   })}
                 </tbody>
@@ -497,16 +547,3 @@ export default function App() {
     </div>
   );
 }
-
-const CarSubSection = ({ title, data, trendData, aggData, monthA, monthB, viewMode, getPreviousMonth, COLORS }) => (
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div className="lg:col-span-1 bg-white p-5 rounded-xl border border-slate-100 flex flex-col">
-      <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">{getIconForTopic(title)}<span>{title} Data</span></h2>
-      <div className="overflow-auto flex-grow h-[250px] mt-4"><TableData data={data} monthA={monthA} monthB={monthB} viewMode={viewMode} getPreviousMonth={getPreviousMonth}/></div>
-    </div>
-    <div className="lg:col-span-2 space-y-6">
-      <div className="bg-white p-5 rounded-xl border border-slate-100"><h3 className="font-bold mb-4">{title} Distribution</h3><div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" tick={{fontSize: 11}} /><YAxis tick={{fontSize: 11}} /><Tooltip /><Legend />{viewMode === 'compare' ? (<><Bar dataKey="valA" name={monthA} fill="#cbd5e1" radius={[4, 4, 0, 0]} /><Bar dataKey="valB" name={monthB} fill="#3b82f6" radius={[4, 4, 0, 0]} /></>) : (<Bar dataKey="valB" name={monthA} fill="#3b82f6" radius={[4, 4, 0, 0]} />)}</BarChart></ResponsiveContainer></div></div>
-      <div className="bg-white p-5 rounded-xl border border-slate-100"><h3 className="font-bold mb-4">{title} - Trend</h3><div className="h-64"><ResponsiveContainer width="100%" height="100%"><LineChart data={trendData}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" tick={{fontSize: 11}} /><YAxis tick={{fontSize: 11}} /><Tooltip /><Legend />{aggData.map((s, i) => <Line key={s.Segment} type="monotone" dataKey={s.Segment} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={{r: 3}} />)}</LineChart></ResponsiveContainer></div></div>
-    </div>
-  </div>
-);
