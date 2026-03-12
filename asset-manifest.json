@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/panelist-analytics-dashboard/static/css/main.d3e4ec85.css",
-    "main.js": "/panelist-analytics-dashboard/static/js/main.de909e03.js",
+    "main.css": "/panelist-analytics-dashboard/static/css/main.1a86027e.css",
+    "main.js": "/panelist-analytics-dashboard/static/js/main.1681cf41.js",
     "static/js/453.1b795376.chunk.js": "/panelist-analytics-dashboard/static/js/453.1b795376.chunk.js",
     "index.html": "/panelist-analytics-dashboard/index.html",
-    "main.d3e4ec85.css.map": "/panelist-analytics-dashboard/static/css/main.d3e4ec85.css.map",
-    "main.de909e03.js.map": "/panelist-analytics-dashboard/static/js/main.de909e03.js.map",
+    "main.1a86027e.css.map": "/panelist-analytics-dashboard/static/css/main.1a86027e.css.map",
+    "main.1681cf41.js.map": "/panelist-analytics-dashboard/static/js/main.1681cf41.js.map",
     "453.1b795376.chunk.js.map": "/panelist-analytics-dashboard/static/js/453.1b795376.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d3e4ec85.css",
-    "static/js/main.de909e03.js"
+    "static/css/main.1a86027e.css",
+    "static/js/main.1681cf41.js"
   ]
 }
